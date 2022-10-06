@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     EditText addProvinceEditText;
     FirebaseFirestore db;
     CustomList customList;
+    int selectedItem;
+    City selectedCity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +115,38 @@ public class MainActivity extends AppCompatActivity {
                     addProvinceEditText.setText("");
 
                 }
+            }
+        });
+
+        cityList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                // defines the item selected so that we can use it later to edit and delete the list
+                selectedItem = position;
+                selectedCity = cityDataList.get(selectedItem);
+                final String cityNameRemove = selectedCity.getCityName();
+                //final String provinceNameRemove = selectedCity.getProvinceName();
+                //HashMap<String, String> dataRemove = new HashMap<>();
+                //dataRemove.put("Province Name", provinceNameRemove);
+                collectionReference
+                        .document(cityNameRemove)
+                        .delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                // These are a method which gets executed when the task is succeeded
+                                Log.d(TAG, "Data has been removed successfully!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // These are a method which gets executed if there’s any problem
+                                Log.d(TAG, "Data could not be removed!" + e.toString());
+                            }
+                        });
+
+                return true;
             }
         });
 
